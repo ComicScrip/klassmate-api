@@ -1,0 +1,20 @@
+{
+  "name": "klassmate-api",
+  "version": "0.0.1",
+  "description": "An API to manage eductional activities remotely",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start:watch": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ComicScrip/klassmate-api.git"
+  },
+  "author": "Pierre Genthon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ComicScrip/klassmate-api/issues"
+  },
+  "homepage": "https://github.com/ComicScrip/klassmate-api#readme"
+}
