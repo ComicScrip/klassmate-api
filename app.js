@@ -4,9 +4,6 @@ const { SERVER_PORT, inTestEnv } = require('./env');
 // app settings
 app.set('x-powered-by', false); // for security
 
-// routes
-// ...
-
 // server setup
 app.listen(SERVER_PORT, () => {
   if (!inTestEnv) {
