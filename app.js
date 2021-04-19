@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { PORT, CORS_ALLOWED_ORINGINS, inTestEnv } = require('./env');
+const { PORT, CORS_ALLOWED_ORIGINS, inTestEnv } = require('./env');
 
 const app = express();
 
