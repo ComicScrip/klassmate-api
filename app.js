@@ -7,7 +7,7 @@ const app = express();
 // app settings
 app.set('x-powered-by', false); // for security
 
-const allowedOrigins = CORS_ALLOWED_ORINGINS.split(',');
+const allowedOrigins = CORS_ALLOWED_ORIGINS.split(',');
 const corsOptions = {
   origin: (origin, callback) => {
     if (origin === undefined || allowedOrigins.indexOf(origin) !== -1) {
