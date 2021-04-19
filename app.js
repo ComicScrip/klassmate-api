@@ -1,10 +1,25 @@
 const express = require('express');
-const { PORT, inTestEnv } = require('./env');
+const cors = require('cors');
+const { PORT, CORS_ALLOWED_ORINGINS, inTestEnv } = require('./env');
 
 const app = express();
 
 // app settings
 app.set('x-powered-by', false); // for security
+
+const allowedOrigins = CORS_ALLOWED_ORINGINS.split(',');
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (origin === undefined || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 const students = [
   { lastName: 'BERDALA', firstName: 'Doriane' },
