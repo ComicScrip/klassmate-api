@@ -13,12 +13,12 @@ const inProdEnv = getEnv('NODE_ENV') === 'production';
 const inDevEnv = getEnv('NODE_ENV') === 'development';
 const inTestEnv = getEnv('NODE_ENV') === 'test';
 
-const SERVER_PORT = getEnv(`SERVER_PORT${inTestEnv ? '_TEST' : ''}`);
+const PORT = getEnv(`PORT${inTestEnv ? '_TEST' : ''}`);
 
 module.exports = {
   getEnv,
   inTestEnv,
   inProdEnv,
   inDevEnv,
-  SERVER_PORT,
+  PORT,
 };
