@@ -1,5 +1,5 @@
 const express = require('express');
-const { SERVER_PORT, inTestEnv } = require('./env');
+const { PORT, inTestEnv } = require('./env');
 
 const app = express();
 
@@ -28,9 +28,9 @@ app.get('/students', (req, res) => {
 });
 
 // server setup
-app.listen(SERVER_PORT, () => {
+app.listen(PORT, () => {
   if (!inTestEnv) {
-    console.log(`Server running on port ${SERVER_PORT}`);
+    console.log(`Server running on port ${PORT}`);
   }
 });
 
