@@ -14,6 +14,7 @@ const inDevEnv = getEnv('NODE_ENV') === 'development';
 const inTestEnv = getEnv('NODE_ENV') === 'test';
 
 const PORT = getEnv(`PORT${inTestEnv ? '_TEST' : ''}`);
+const CORS_ALLOWED_ORINGINS = getEnv(`CORS_ALLOWED_ORINGINS`);
 
 module.exports = {
   getEnv,
@@ -21,4 +22,5 @@ module.exports = {
   inProdEnv,
   inDevEnv,
   PORT,
+  CORS_ALLOWED_ORINGINS,
 };
