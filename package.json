@@ -16,5 +16,18 @@
   "bugs": {
     "url": "https://github.com/ComicScrip/klassmate-api/issues"
   },
-  "homepage": "https://github.com/ComicScrip/klassmate-api#readme"
+  "homepage": "https://github.com/ComicScrip/klassmate-api#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.24.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.3.5",
+    "husky": "^6.0.0",
+    "nodemon": "^2.0.7"
+  }
 }
