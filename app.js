@@ -1,8 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const { PORT, CORS_ALLOWED_ORIGINS, inTestEnv } = require('./env');
+const connection = require('./db');
 
 const app = express();
+
+connection.connect((err) => {
+  if (err) {
+    console.error('error connecting to db');
+  } else {
+    console.log('connected to db');
+  }
+});
 
 // app settings
 app.set('x-powered-by', false); // for security
