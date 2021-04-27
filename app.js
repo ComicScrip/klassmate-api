@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const Joi = require('joi');
 const { PORT, CORS_ALLOWED_ORIGINS, inTestEnv } = require('./env');
 const connection = require('./db');
 
@@ -56,30 +57,110 @@ const notesRouter = express.Router();
 app.use('/notes', notesRouter);
 
 notesRouter.get('/', (req, res) => {
-  connection
-    .promise()
-    .query('SELECT * FROM notes')
-    .then(([results]) => {
-      res.json(results);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
+  setTimeout(() => {
+    connection
+      .promise()
+      .query('SELECT * FROM notes')
+      .then(([results]) => {
+        res.json(results);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+  }, 3000);
 });
 
 notesRouter.post('/', (req, res) => {
-  const { title, content } = req.body;
+  setTimeout(() => {
+    const { title, content } = req.body;
+    const { error: validationErrors } = Joi.object({
+      title: Joi.string().max(255).required(),
+      content: Joi.string().max(65535).required(),
+    }).validate({ title, content }, { abortEarly: false });
+
+    if (validationErrors) {
+      res.status(422).send({ validationErrors });
+    } else {
+      connection
+        .promise()
+        .query('INSERT INTO notes (title, content) VALUES (?, ?)', [
+          title,
+          content,
+        ])
+        .then(([result]) => {
+          res.send({ id: result.insertId, title, content });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.sendStatus(500);
+        });
+    }
+  }, 3000);
+});
+
+notesRouter.patch('/:id', (req, res) => {
+  let validationErrors = null;
+  let existingNote = null;
   connection
     .promise()
-    .query('INSERT INTO notes (title, content) VALUES (?, ?)', [title, content])
-    .then(([result]) => {
-      res.json({ id: result.insertId, title, content });
+    .query('SELECT * FROM notes WHERE id = ?', [req.params.id])
+    .then(([[note]]) => {
+      existingNote = note;
+      if (!existingNote) return Promise.reject(new Error('RECORD_NOT_FOUND'));
+      validationErrors = Joi.object({
+        title: Joi.string().max(255),
+        content: Joi.string().max(65535),
+      }).validate(req.body, { abortEarly: false }).error;
+      if (validationErrors) return Promise.reject(new Error('INVALID_DATA'));
+      return connection
+        .promise()
+        .query('UPDATE notes SET ? WHERE id = ?', [req.body, req.params.id]);
+    })
+    .then(() => {
+      res.json({ ...existingNote, ...req.body });
     })
     .catch((err) => {
       console.error(err);
-      res.sendStatus(500);
+      if (err.message === 'RECORD_NOT_FOUND') return res.sendStatus(404);
+      if (err.message === 'INVALID_DATA')
+        return res.status(422).json({ errors: validationErrors.details });
+      return res.sendStatus(500);
     });
+});
+
+notesRouter.delete('/:id', (req, res) => {
+  setTimeout(() => {
+    const { id } = req.params;
+    connection
+      .promise()
+      .query('DELETE FROM notes WHERE id = ?', [id])
+      .then(([result]) => {
+        if (result.affectedRows) res.sendStatus(204);
+        else res.sendStatus(404);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+  }, 3000);
+});
+
+notesRouter.get('/:id', (req, res) => {
+  setTimeout(() => {
+    const { id } = req.params;
+    connection
+      .promise()
+      .query('SELECT * FROM notes WHERE id = ?', [id])
+      .then(([results]) => {
+        if (results.length) res.send(results[0]);
+        else res.sendStatus(404);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+  }, 3000);
 });
 
 // server setup
