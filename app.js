@@ -57,46 +57,42 @@ const notesRouter = express.Router();
 app.use('/notes', notesRouter);
 
 notesRouter.get('/', (req, res) => {
-  setTimeout(() => {
+  connection
+    .promise()
+    .query('SELECT * FROM notes')
+    .then(([results]) => {
+      res.json(results);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+});
+
+notesRouter.post('/', (req, res) => {
+  const { title, content } = req.body;
+  const { error: validationErrors } = Joi.object({
+    title: Joi.string().max(255).required(),
+    content: Joi.string().max(65535).required(),
+  }).validate({ title, content }, { abortEarly: false });
+
+  if (validationErrors) {
+    res.status(422).send({ validationErrors });
+  } else {
     connection
       .promise()
-      .query('SELECT * FROM notes')
-      .then(([results]) => {
-        res.json(results);
+      .query('INSERT INTO notes (title, content) VALUES (?, ?)', [
+        title,
+        content,
+      ])
+      .then(([result]) => {
+        res.send({ id: result.insertId, title, content });
       })
       .catch((err) => {
         console.error(err);
         res.sendStatus(500);
       });
-  }, 3000);
-});
-
-notesRouter.post('/', (req, res) => {
-  setTimeout(() => {
-    const { title, content } = req.body;
-    const { error: validationErrors } = Joi.object({
-      title: Joi.string().max(255).required(),
-      content: Joi.string().max(65535).required(),
-    }).validate({ title, content }, { abortEarly: false });
-
-    if (validationErrors) {
-      res.status(422).send({ validationErrors });
-    } else {
-      connection
-        .promise()
-        .query('INSERT INTO notes (title, content) VALUES (?, ?)', [
-          title,
-          content,
-        ])
-        .then(([result]) => {
-          res.send({ id: result.insertId, title, content });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.sendStatus(500);
-        });
-    }
-  }, 3000);
+  }
 });
 
 notesRouter.patch('/:id', (req, res) => {
@@ -130,37 +126,33 @@ notesRouter.patch('/:id', (req, res) => {
 });
 
 notesRouter.delete('/:id', (req, res) => {
-  setTimeout(() => {
-    const { id } = req.params;
-    connection
-      .promise()
-      .query('DELETE FROM notes WHERE id = ?', [id])
-      .then(([result]) => {
-        if (result.affectedRows) res.sendStatus(204);
-        else res.sendStatus(404);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  }, 3000);
+  const { id } = req.params;
+  connection
+    .promise()
+    .query('DELETE FROM notes WHERE id = ?', [id])
+    .then(([result]) => {
+      if (result.affectedRows) res.sendStatus(204);
+      else res.sendStatus(404);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 });
 
 notesRouter.get('/:id', (req, res) => {
-  setTimeout(() => {
-    const { id } = req.params;
-    connection
-      .promise()
-      .query('SELECT * FROM notes WHERE id = ?', [id])
-      .then(([results]) => {
-        if (results.length) res.send(results[0]);
-        else res.sendStatus(404);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  }, 3000);
+  const { id } = req.params;
+  connection
+    .promise()
+    .query('SELECT * FROM notes WHERE id = ?', [id])
+    .then(([results]) => {
+      if (results.length) res.send(results[0]);
+      else res.sendStatus(404);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 });
 
 // server setup
