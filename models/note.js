@@ -1,17 +1,5 @@
 const Joi = require('joi');
-const connection = require('../db');
-
-const findMany = () =>
-  connection
-    .promise()
-    .query('SELECT * FROM notes')
-    .then(([results]) => results);
-
-const findOne = (id) =>
-  connection
-    .promise()
-    .query('SELECT * FROM notes WHERE id = ?', [id])
-    .then(([results]) => results[0]);
+const db = require('../db');
 
 const validate = (data, forUpdate = false) =>
   Joi.object({
@@ -23,20 +11,21 @@ const validate = (data, forUpdate = false) =>
       .presence(forUpdate ? 'optional' : 'required'),
   }).validate(data, { abortEarly: false }).error;
 
+const findMany = () => db.note.findMany();
+
+const findOne = (id) => db.note.findFirst({ where: { id: parseInt(id, 10) } });
+
 const create = ({ title, content }) =>
-  connection
-    .promise()
-    .query('INSERT INTO notes (title, content) VALUES (?, ?)', [title, content])
-    .then(([result]) => ({ id: result.insertId, title, content }));
+  db.note.create({ data: { title, content } });
 
 const update = (id, data) =>
-  connection.promise().query('UPDATE notes SET ? WHERE id = ?', [data, id]);
+  db.note.update({ where: { id: parseInt(id, 10) }, data });
 
-const destroy = (id) =>
-  connection
-    .promise()
-    .query('DELETE FROM notes WHERE id = ?', [id])
-    .then(([result]) => !!result.affectedRows);
+const destroy = async (id) =>
+  db.note
+    .delete({ where: { id: parseInt(id, 10) } })
+    .then(() => true)
+    .catch(() => false);
 
 module.exports = {
   findMany,

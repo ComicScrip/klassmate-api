@@ -14,8 +14,8 @@ model user {
   id             Int    @id @default(autoincrement())
   email          String @unique @db.VarChar(255)
   hashedPassword String @db.VarChar(255)
-  firstname      String @db.VarChar(255)
-  lastname       String @db.VarChar(255)
+  firstName      String @db.VarChar(255)
+  lastName       String @db.VarChar(255)
   role           String @default("student") @db.VarChar(255)
 }
 
