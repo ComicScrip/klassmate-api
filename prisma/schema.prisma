@@ -17,10 +17,20 @@ model user {
   firstName      String @db.VarChar(255)
   lastName       String @db.VarChar(255)
   role           String @default("student") @db.VarChar(255)
+  notes          note[]
 }
 
 model note {
-  id      Int    @id @default(autoincrement())
-  title   String @db.VarChar(255)
-  content String @db.VarChar(255)
+  id       Int    @id @default(autoincrement())
+  title    String @db.VarChar(255)
+  content  String @db.VarChar(255)
+  author   user   @relation(fields: [authorId], references: [id])
+  authorId Int // relation scalar field  (used in the `@relation` attribute above)
+  tags     tag[]
+}
+
+model tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(50)
+  notes note[]
 }

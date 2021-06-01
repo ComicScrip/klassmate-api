@@ -9,14 +9,46 @@ const validate = (data, forUpdate = false) =>
     content: Joi.string()
       .max(65535)
       .presence(forUpdate ? 'optional' : 'required'),
+    tags: Joi.array(),
   }).validate(data, { abortEarly: false }).error;
 
 const findMany = () => db.note.findMany();
 
-const findOne = (id) => db.note.findFirst({ where: { id: parseInt(id, 10) } });
+const findOne = (id) =>
+  db.note.findFirst({
+    where: { id: parseInt(id, 10) },
+    include: { tags: true },
+  });
 
-const create = ({ title, content }) =>
-  db.note.create({ data: { title, content } });
+const create = ({ title, content, tags }) =>
+  db.note.create({
+    data: {
+      title,
+      content,
+      author: {
+        connectOrCreate: {
+          create: {
+            email: 'john.doe@gmail.com',
+            firstName: 'john',
+            lastName: 'doe',
+            hashedPassword: 'uefheziufhe',
+          },
+          where: {
+            email: 'john.doe@gmail.com',
+          },
+        },
+      },
+      tags: {
+        connectOrCreate: (tags || []).map(({ name }) => ({
+          create: { name },
+          where: { name },
+        })),
+      },
+    },
+    include: {
+      tags: true,
+    },
+  });
 
 const update = (id, data) =>
   db.note.update({ where: { id: parseInt(id, 10) }, data });

@@ -25,6 +25,26 @@ module.exports = async function seed() {
       hashedPassword,
     })),
   });
+  const firstUser = await db.user.findFirst();
+
+  const tag = await db.tag.create({ data: { name: 'myexisitingtag' } });
+
+  await db.note.create({
+    data: {
+      title: 'test',
+      content: 'test',
+      author: {
+        connect: { id: firstUser.id },
+      },
+      tags: {
+        connectOrCreate: [
+          { create: { name: 'testtag' }, where: { name: 'testtag' } },
+          { create: { name: 'testtag2' }, where: { name: 'testtag2' } },
+          { create: { id: tag.id, name: tag.name }, where: { id: tag.id } },
+        ],
+      },
+    },
+  });
 };
 
 module

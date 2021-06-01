@@ -54,7 +54,10 @@ describe(`notes endpoints`, () => {
       });
 
       it('returned object in body has correct properties', () => {
-        expect(res.body).toEqual(testedEntity);
+        const expectedProps = ['id', 'title', 'content', 'tags'];
+        expectedProps.forEach((prop) => {
+          expect(res.body[prop]).not.toBe(undefined);
+        });
       });
     });
 
@@ -81,6 +84,27 @@ describe(`notes endpoints`, () => {
 
       it('returns the id of the created note', async () => {
         expect(res.body).toHaveProperty('id');
+      });
+    });
+
+    describe('with tags', () => {
+      beforeAll(async () => {
+        payload = getValidAttributes();
+        payload.tags = [{ name: 'tag1' }, { name: 'tag2' }];
+        res = await request(app).post(`/notes`).send(payload);
+      });
+
+      it('returns 201 status', async () => {
+        expect(res.statusCode).toEqual(201);
+      });
+
+      it('returns the tags with the created note', async () => {
+        expect(res.body.tags.length).toEqual(2);
+        res.body.tags.forEach((tag) => {
+          expect(tag).toHaveProperty('id');
+          expect(tag).toHaveProperty('name');
+        });
+        expect(res.body.tags.map((tag) => tag.name)).toEqual(['tag1', 'tag2']);
       });
     });
 
