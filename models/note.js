@@ -11,12 +11,20 @@ const validate = (data, forUpdate = false) =>
       .presence(forUpdate ? 'optional' : 'required'),
   }).validate(data, { abortEarly: false }).error;
 
-const findMany = () => db.note.findMany();
+const findMany = () => db.$queryRaw('SELECT * FROM note');
 
-const findOne = (id) => db.note.findFirst({ where: { id: parseInt(id, 10) } });
+const findOne = (id) =>
+  db.$queryRaw`SELECT * FROM note WHERE id = ${id}`.then((res) => res[0]);
 
 const create = ({ title, content }) =>
-  db.note.create({ data: { title, content } });
+  db.$queryRaw`INSERT INTO note (title, content) VALUES (${title}, ${content})`.then(
+    () =>
+      db.$queryRaw`SELECT LAST_INSERT_ID() AS id`.then((ids) => ({
+        title,
+        content,
+        id: ids[0].id,
+      }))
+  );
 
 const update = (id, data) =>
   db.note.update({ where: { id: parseInt(id, 10) }, data });
