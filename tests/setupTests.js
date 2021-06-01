@@ -23,12 +23,17 @@ async function getTableNames() {
 }
 
 const deleteAllDBData = async () => {
-  await db.$executeRaw('SET FOREIGN_KEY_CHECKS=0;');
-  const names = await getTableNames();
-  await Promise.all(
-    names.map((tableName) => db.$executeRaw(`TRUNCATE ${tableName}`))
-  );
-  await db.$executeRaw('SET FOREIGN_KEY_CHECKS=1;');
+  const transactions = [];
+  transactions.push(db.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`);
+  for (const tableName of await getTableNames()) {
+    transactions.push(db.$executeRaw(`TRUNCATE ${tableName}`));
+  }
+  transactions.push(db.$executeRaw`SET FOREIGN_KEY_CHECKS = 1;`);
+  try {
+    await db.$transaction(transactions);
+  } catch (error) {
+    console.log({ error });
+  }
 };
 
 const closeApp = () =>

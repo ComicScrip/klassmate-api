@@ -54,7 +54,10 @@ describe(`notes endpoints`, () => {
       });
 
       it('returned object in body has correct properties', () => {
-        expect(res.body).toEqual(testedEntity);
+        const expectedProps = ['id', 'title', 'content'];
+        expectedProps.forEach((prop) => {
+          expect(res.body[prop]).not.toBe(undefined);
+        });
       });
     });
 
