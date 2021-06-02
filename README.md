@@ -12,5 +12,5 @@ cp .env.sample .env
 # Run the app
 
 ```sh
-yarn run start:watch
+yarn run dev
 ```

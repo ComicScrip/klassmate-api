@@ -12,8 +12,7 @@
     "migrate:test": "dotenv -- cross-var \"DATABASE_URL=%DATABASE_URL_TEST% npx prisma migrate deploy\"",
     "test": "NODE_ENV=test npm-run-all migrate:test test:run",
     "test:run": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --detectOpenHandles",
-    "test:watch": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --watch --detectOpenHandles",
-    "testing": "dotenv -- cross-var \"DATABASE_URL=%DATABASE_URL_TEST% npm run test\""
+    "test:watch": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --watch --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,6 @@
     "dotenv-cli": "3.0.0",
     "express": "^4.17.1",
     "joi": "^17.4.0",
-    "mysql2": "^2.2.5",
     "npm-run-all": "^4.1.5",
     "prisma": "2.23.0"
   },
