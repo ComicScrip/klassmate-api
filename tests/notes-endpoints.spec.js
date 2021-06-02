@@ -87,6 +87,26 @@ describe(`notes endpoints`, () => {
       });
     });
 
+    describe('when tags are provided', () => {
+      beforeAll(async () => {
+        payload = getValidAttributes();
+        payload.tags = [{ name: 'tag1' }, { name: 'tag2' }];
+        res = await request(app).post(`/notes`).send(payload);
+      });
+
+      it('returns 201 status', async () => {
+        expect(res.statusCode).toEqual(201);
+      });
+
+      it('returns the id of the created note', async () => {
+        expect(res.body.tags.length).toBe(2);
+        res.body.tags.forEach((tag) => {
+          expect(tag).toHaveProperty('id');
+          expect(tag).toHaveProperty('name');
+        });
+      });
+    });
+
     describe('when title is not provided', () => {
       beforeAll(async () => {
         res = await request(app).post(`/notes`).send({

@@ -25,6 +25,19 @@ module.exports = async function seed() {
       hashedPassword,
     })),
   });
+
+  await db.note.create({
+    data: {
+      title: 'test1',
+      content: 'test1content',
+      tags: {
+        connectOrCreate: [
+          { create: { name: 'HTML' }, where: { name: 'HTML' } },
+          { create: { name: 'CSS' }, where: { name: 'CSS' } },
+        ],
+      },
+    },
+  });
 };
 
 module
