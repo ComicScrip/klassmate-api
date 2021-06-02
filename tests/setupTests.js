@@ -3,7 +3,6 @@ require('dotenv').config();
 process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
 
 const db = require('../db.js');
-const connection = require('../connection');
 const app = require('../app.js');
 
 let tableNames = null;
@@ -47,7 +46,6 @@ const closeApp = () =>
 beforeAll(deleteAllDBData);
 afterEach(deleteAllDBData);
 afterAll(async () => {
-  await new Promise((resolve) => connection.end(resolve));
   await db.$disconnect();
   await closeApp();
 });
