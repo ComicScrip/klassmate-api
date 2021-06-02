@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const { PORT, CORS_ALLOWED_ORIGINS, inTestEnv } = require('./env');
 const initRoutes = require('./routes');
+const handleRecordNotFoundError = require('./middlewares/handleRecordNotFoundError');
+const handleValidationError = require('./middlewares/handleValidationError');
+const handleServerInternalError = require('./middlewares/handleServerInternalError');
 
 const app = express();
 app.use(express.json());
@@ -21,6 +24,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 initRoutes(app);
+app.use(handleRecordNotFoundError);
+app.use(handleValidationError);
+app.use(handleServerInternalError);
 
 // app settings
 app.set('x-powered-by', false); // for security

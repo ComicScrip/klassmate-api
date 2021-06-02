@@ -1,63 +1,54 @@
 const notesRouter = require('express').Router();
+const asyncHandler = require('express-async-handler');
 const Note = require('../models/note');
+const { RecordNotFoundError, ValidationError } = require('../error-types');
 
-notesRouter.get('/', async (req, res) => {
-  try {
+notesRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
     res.send(await Note.findMany());
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
-});
+  })
+);
 
-notesRouter.get('/:id', async (req, res) => {
-  try {
+notesRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const note = await Note.findOne(req.params.id);
     if (note) res.send(note);
-    else res.sendStatus(404);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
-});
+    else throw new RecordNotFoundError();
+  })
+);
 
-notesRouter.post('/', async (req, res) => {
-  const validationErrors = Note.validate(req.body);
-  if (validationErrors) {
-    res.status(422).send({ validationErrors: validationErrors.details });
-  } else {
-    try {
+notesRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const validationErrors = Note.validate(req.body);
+    if (validationErrors) {
+      throw new ValidationError(validationErrors.details);
+    } else {
       res.status(201).send(await Note.create(req.body));
-    } catch (err) {
-      console.error(err);
-      res.sendStatus(500);
     }
-  }
-});
+  })
+);
 
-notesRouter.patch('/:id', async (req, res) => {
-  try {
+notesRouter.patch(
+  '/:id',
+  asyncHandler(async (req, res) => {
     const existingNote = await Note.findOne(req.params.id);
-    if (!existingNote) return res.sendStatus(404);
+    if (!existingNote) throw new RecordNotFoundError();
     const validationErrors = Note.validate(req.body, true);
-    if (validationErrors)
-      return res.status(422).json({ errors: validationErrors.details });
+    if (validationErrors) throw new ValidationError(validationErrors.details);
     await Note.update(req.params.id, req.body);
     return res.json({ ...existingNote, ...req.body });
-  } catch (err) {
-    console.error(err);
-    return res.sendStatus(500);
-  }
-});
+  })
+);
 
-notesRouter.delete('/:id', async (req, res) => {
-  try {
+notesRouter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
     if (await Note.destroy(req.params.id)) res.sendStatus(204);
-    else res.sendStatus(404);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
-});
+    else throw new RecordNotFoundError();
+  })
+);
 
 module.exports = notesRouter;
