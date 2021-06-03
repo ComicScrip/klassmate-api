@@ -11,7 +11,6 @@ authRouter.post(
       user &&
       (await User.verifyPassword(req.body.password, user.hashedPassword))
     ) {
-      console.log('ok');
       if (req.body.stayConnected) {
         // session cookie will be valid for a week
         req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000;
