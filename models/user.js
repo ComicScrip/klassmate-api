@@ -13,7 +13,7 @@ const hashingOptions = {
   type: argon2.argon2id,
 };
 
-const findOne = (id) => db.user.findFirst({ where: { id } });
+const findOne = (id) => db.user.findUnique({ where: { id } });
 
 const { findMany } = db.user;
 
