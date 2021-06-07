@@ -30,6 +30,9 @@ const create = async ({ email, password, firstName, lastName }) => {
   });
 };
 
+const update = async (id, data) =>
+  db.user.update({ where: { id: parseInt(id, 10) }, data });
+
 const validate = (data) =>
   Joi.object({
     email: Joi.string().email().max(255).required(),
@@ -47,4 +50,5 @@ module.exports = {
   validate,
   findOne,
   findMany,
+  update,
 };

@@ -54,6 +54,8 @@ app.use(handleRecordNotFoundError);
 app.use(handleValidationError);
 app.use(handleServerInternalError);
 
+app.use('/file-storage', express.static('file-storage'));
+
 initRoutes(app);
 
 // server setup
