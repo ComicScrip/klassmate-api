@@ -107,4 +107,5 @@ dist
 .vscode
 .DS_Store
 
-file-storage/
+file-storage/*
+!file-storage/.gitkeep 

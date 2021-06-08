@@ -1,13 +1,13 @@
 const currentUserRouter = require('express').Router();
 const asyncHandler = require('express-async-handler');
 const requireCurrentUser = require('../middlewares/requireCurrentUser');
+const User = require('../models/user');
 
 currentUserRouter.get(
   '/',
   requireCurrentUser,
   asyncHandler(async (req, res) => {
-    const { firstName, lastName, id } = req.currentUser;
-    res.json({ firstName, lastName, id });
+    res.json(User.getSafeAttributes(req.currentUser));
   })
 );
 

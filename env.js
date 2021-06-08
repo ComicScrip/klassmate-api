@@ -30,6 +30,8 @@ const SESSION_COOKIE_DOMAIN = getEnv(`SESSION_COOKIE_DOMAIN`);
 const SESSION_COOKIE_NAME = getEnv(`SESSION_COOKIE_NAME`);
 const SESSION_COOKIE_SECRET = getEnv(`SESSION_COOKIE_SECRET`);
 
+const API_BASE_URL = getEnv(`API_BASE_URL`);
+
 module.exports = {
   getEnv,
   inTestEnv,
@@ -46,4 +48,5 @@ module.exports = {
   DB_PASSWORD,
   DB_NAME,
   DB_PORT,
+  API_BASE_URL,
 };
