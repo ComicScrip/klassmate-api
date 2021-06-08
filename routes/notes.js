@@ -2,8 +2,10 @@ const notesRouter = require('express').Router();
 const asyncHandler = require('express-async-handler');
 const Note = require('../models/note');
 const { RecordNotFoundError, ValidationError } = require('../error-types');
+const requireCurrentUser = require('../middlewares/requireCurrentUser');
 
 notesRouter.get(
+  requireCurrentUser,
   '/',
   asyncHandler(async (req, res) => {
     res.send(await Note.findMany());
@@ -12,6 +14,7 @@ notesRouter.get(
 
 notesRouter.get(
   '/:id',
+  requireCurrentUser,
   asyncHandler(async (req, res) => {
     const note = await Note.findOne(req.params.id);
     if (note) res.send(note);
@@ -21,6 +24,7 @@ notesRouter.get(
 
 notesRouter.post(
   '/',
+  requireCurrentUser,
   asyncHandler(async (req, res) => {
     const validationErrors = Note.validate(req.body);
     if (validationErrors) {
@@ -33,6 +37,7 @@ notesRouter.post(
 
 notesRouter.patch(
   '/:id',
+  requireCurrentUser,
   asyncHandler(async (req, res) => {
     const existingNote = await Note.findOne(req.params.id);
     if (!existingNote) throw new RecordNotFoundError();
@@ -45,6 +50,7 @@ notesRouter.patch(
 
 notesRouter.delete(
   '/:id',
+  requireCurrentUser,
   asyncHandler(async (req, res) => {
     if (await Note.destroy(req.params.id)) res.sendStatus(204);
     else throw new RecordNotFoundError();
