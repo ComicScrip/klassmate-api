@@ -1,4 +1,5 @@
 const multer = require('multer');
+const uniqid = require('uniqid');
 const path = require('path');
 
 const storage = multer.diskStorage({
@@ -6,7 +7,8 @@ const storage = multer.diskStorage({
     cb(null, 'file-storage');
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const extname = path.extname(file.originalname).toLowerCase();
+    cb(null, `${uniqid()}${extname}`);
   },
 });
 

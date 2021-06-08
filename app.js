@@ -50,13 +50,14 @@ app.use(
     },
   })
 );
-app.use(handleRecordNotFoundError);
-app.use(handleValidationError);
-app.use(handleServerInternalError);
 
 app.use('/file-storage', express.static('file-storage'));
 
 initRoutes(app);
+
+app.use(handleRecordNotFoundError);
+app.use(handleValidationError);
+app.use(handleServerInternalError);
 
 // server setup
 const server = app.listen(PORT, () => {
