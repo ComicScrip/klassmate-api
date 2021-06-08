@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id             Int     @id @default(autoincrement())
+  email          String  @unique @db.VarChar(255)
+  hashedPassword String  @db.VarChar(255)
+  role           String  @default("student") @db.VarChar(255)
+  firstName      String  @db.VarChar(255)
+  lastName       String  @db.VarChar(255)
+  meetUrl        String? @db.VarChar(255)
+  discordId      String? @db.VarChar(255)
+  avatarUrl      String? @db.VarChar(255)
+  notes          note[]
+}
+
+model note {
+  id       Int    @id @default(autoincrement())
+  title    String @db.VarChar(255)
+  content  String @db.VarChar(255)
+  authorId Int?
+  author   user?  @relation(fields: [authorId], references: [id])
+  tags     tag[]
+
+  @@index([authorId], name: "authorId")
+}
+
+model tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(50)
+  notes note[]
+}
+
+model sessions {
+  session_id String  @id @db.VarChar(128)
+  expires    Int     @db.UnsignedInt
+  data       String? @db.MediumText
+}
