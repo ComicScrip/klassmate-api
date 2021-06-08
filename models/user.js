@@ -59,18 +59,9 @@ const validate = (data, forUpdate = false) =>
     lastName: Joi.string()
       .max(255)
       .presence(forUpdate ? 'optional' : 'required'),
-    avatarUrl: Joi.string()
-      .max(255)
-      .allow(null, '')
-      .presence(forUpdate ? 'optional' : 'required'),
-    meetUrl: Joi.string()
-      .max(255)
-      .allow(null, '')
-      .presence(forUpdate ? 'optional' : 'required'),
-    discordId: Joi.string()
-      .max(255)
-      .allow(null, '')
-      .presence(forUpdate ? 'optional' : 'required'),
+    avatarUrl: Joi.string().max(255).allow(null, ''),
+    meetUrl: Joi.string().max(255).allow(null, ''),
+    discordId: Joi.string().max(255).allow(null, ''),
   }).validate(data, { abortEarly: false }).error;
 
 const getSafeAttributes = (user) => {
