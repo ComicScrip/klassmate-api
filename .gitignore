@@ -108,4 +108,4 @@ dist
 .DS_Store
 
 file-storage/*
-!somefolder/.gitkeep 
+!file-storage/.gitkeep 
