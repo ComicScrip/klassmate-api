@@ -9,7 +9,11 @@ const tryDeleteFile = require('../helpers/tryDeleteFile');
 
 usersRouter.post(
   '/',
-
+  requireCurrentUser,
+  expressAsyncHandler(async (req, res, next) => {
+    if (req.currentUser.role === 'admin') next();
+    else res.sendStatus(403);
+  }),
   expressAsyncHandler(async (req, res) => {
     const validationErrors = User.validate(req.body);
     if (validationErrors)

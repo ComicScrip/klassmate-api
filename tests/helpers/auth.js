@@ -6,16 +6,16 @@ const getUserCookie = async (role = 'student') => {
   await User.create({
     firstName: 'john',
     lastName: 'doe',
-    email: 'john.doe@gmail.com',
-    password: 'test12345',
+    email: 'john.doe3000@gmail.com',
+    password: 'mySecureP@ssword45!',
     role,
   });
 
   return request(app)
     .post('/auth/login')
     .send({
-      email: 'john.doe@gmail.com',
-      password: 'test12345',
+      email: 'john.doe3000@gmail.com',
+      password: 'mySecureP@ssword45!',
     })
     .then((response) => response.headers['set-cookie']);
 };
