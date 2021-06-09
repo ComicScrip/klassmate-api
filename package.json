@@ -4,7 +4,8 @@
   "description": "An API to manage eductional activities remotely",
   "main": "app.js",
   "scripts": {
-    "start": "npm-run-all migrate:deploy start:server",
+    "start": "npm-run-all migrate:deploy generate-db-client start:server",
+    "generate-db-client": "npx prisma generate",
     "migrate:deploy": "npx prisma migrate deploy",
     "start:server": "node app.js",
     "start:watch": "nodemon app.js",
