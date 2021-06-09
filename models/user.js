@@ -24,10 +24,10 @@ const hashPassword = (plainPassword) =>
 const verifyPassword = (plainPassword, hashedPassword) =>
   argon2.verify(hashedPassword, plainPassword, hashingOptions);
 
-const create = async ({ email, password, firstName, lastName }) => {
+const create = async ({ email, password, firstName, lastName, role }) => {
   const hashedPassword = await hashPassword(password);
   return db.user.create({
-    data: { email, hashedPassword, firstName, lastName },
+    data: { email, hashedPassword, firstName, lastName, role },
   });
 };
 

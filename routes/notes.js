@@ -5,8 +5,8 @@ const { RecordNotFoundError, ValidationError } = require('../error-types');
 const requireCurrentUser = require('../middlewares/requireCurrentUser');
 
 notesRouter.get(
-  requireCurrentUser,
   '/',
+  requireCurrentUser,
   asyncHandler(async (req, res) => {
     res.send(await Note.findMany());
   })

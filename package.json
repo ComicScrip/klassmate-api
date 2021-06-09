@@ -4,7 +4,9 @@
   "description": "An API to manage eductional activities remotely",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "npm-run-all migrate:deploy start:server",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "start:server": "node app.js",
     "start:watch": "nodemon app.js",
     "dev": "npm-run-all migrate:dev start:watch",
     "reset-db": "npx prisma migrate reset",
@@ -12,7 +14,8 @@
     "migrate:test": "dotenv -- cross-var \"DATABASE_URL=%DATABASE_URL_TEST% npx prisma migrate deploy\"",
     "test": "NODE_ENV=test npm-run-all migrate:test test:run",
     "test:run": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --detectOpenHandles",
-    "test:watch": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --watch --detectOpenHandles"
+    "test:watch": "jest --testRunner='jest-circus/runner' --maxWorkers=1 --watch --detectOpenHandles",
+    "wait-for-db": "node ./scripts/wait-for-db.js"
   },
   "repository": {
     "type": "git",
