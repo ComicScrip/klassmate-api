@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const {
-  RESET_PASSWROD_FRONT_URL,
+  RESET_PASSWORD_FRONT_URL,
   EMAIL_SENDER,
   SMTP_HOST,
   SMTP_PORT,
@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
 
 const sendResetPasswordEmail = (user, token) =>
   new Promise((resolve, reject) => {
-    const mailContent = `${RESET_PASSWROD_FRONT_URL}?userId=${user.id}&token=${token}`;
+    const mailContent = `Click on that link to reset your password : ${RESET_PASSWORD_FRONT_URL}?userId=${user.id}&token=${token}`;
 
     transporter.sendMail(
       {
