@@ -39,7 +39,7 @@ const update = async (id, data) =>
       avatarUrl:
         typeof data.avatarUrl === 'string'
           ? data.avatarUrl.replace(`${API_BASE_URL}/`, '')
-          : null,
+          : data.avatarUrl,
     },
   });
 

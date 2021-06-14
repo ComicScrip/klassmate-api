@@ -31,6 +31,8 @@ const SESSION_COOKIE_NAME = getEnv(`SESSION_COOKIE_NAME`);
 const SESSION_COOKIE_SECRET = getEnv(`SESSION_COOKIE_SECRET`);
 
 const API_BASE_URL = getEnv(`API_BASE_URL`);
+const EMAIL_SENDER = getEnv(`EMAIL_SENDER`);
+const RESET_PASSWROD_FRONT_URL = getEnv(`RESET_PASSWROD_FRONT_URL`);
 
 module.exports = {
   getEnv,
@@ -49,4 +51,6 @@ module.exports = {
   DB_NAME,
   DB_PORT,
   API_BASE_URL,
+  EMAIL_SENDER,
+  RESET_PASSWROD_FRONT_URL,
 };

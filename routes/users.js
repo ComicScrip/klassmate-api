@@ -1,11 +1,14 @@
 const _ = require('lodash');
 const usersRouter = require('express').Router();
 const expressAsyncHandler = require('express-async-handler');
+const uniqid = require('uniqid');
 const requireCurrentUser = require('../middlewares/requireCurrentUser');
 const handleImageUpload = require('../middlewares/handleImageUpload');
 const User = require('../models/user');
 const { ValidationError, RecordNotFoundError } = require('../error-types');
 const tryDeleteFile = require('../helpers/tryDeleteFile');
+const emailer = require('../mailer');
+const { RESET_PASSWROD_FRONT_URL, EMAIL_SENDER } = require('../env');
 
 usersRouter.post(
   '/',
@@ -24,6 +27,55 @@ usersRouter.post(
 
     const newUser = await User.create(req.body);
     return res.status(201).send(User.getSafeAttributes(newUser));
+  })
+);
+
+usersRouter.post(
+  '/reset-password-email',
+  expressAsyncHandler(async (req, res) => {
+    const user = await User.findByEmail(req.body.email);
+
+    if (user) {
+      const token = uniqid();
+      const hashedToken = await User.hashPassword(token);
+      await User.update(user.id, { resetPasswordToken: hashedToken });
+
+      const mailContent = `${RESET_PASSWROD_FRONT_URL}?userId=${user.id}&token=${token}`;
+      await emailer.sendMail(
+        {
+          from: EMAIL_SENDER,
+          to: user.email,
+          subject: 'Reset your password',
+          text: mailContent,
+          html: mailContent,
+        },
+        (err, info) => {
+          if (err) console.error(err);
+          else console.log(info);
+        }
+      );
+    }
+
+    res.sendStatus(200);
+  })
+);
+
+usersRouter.post(
+  '/reset-password',
+  expressAsyncHandler(async (req, res) => {
+    const { userId, token, password } = req.body;
+    const user = await User.findOne(userId);
+
+    if (user && (await User.verifyPassword(token, user.resetPasswordToken))) {
+      const newHashedPassword = await User.hashPassword(password);
+      await User.update(user.id, {
+        hashedPassword: newHashedPassword,
+        resetPasswordToken: null,
+      });
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(400);
+    }
   })
 );
 
