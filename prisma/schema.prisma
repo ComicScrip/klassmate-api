@@ -8,16 +8,17 @@ datasource db {
 }
 
 model user {
-  id             Int     @id @default(autoincrement())
-  email          String  @unique @db.VarChar(255)
-  hashedPassword String  @db.VarChar(255)
-  role           String  @default("student") @db.VarChar(255)
-  firstName      String  @db.VarChar(255)
-  lastName       String  @db.VarChar(255)
-  meetUrl        String? @db.VarChar(255)
-  discordId      String? @db.VarChar(255)
-  avatarUrl      String? @db.VarChar(255)
-  notes          note[]
+  id                 Int     @id @default(autoincrement())
+  email              String  @unique @db.VarChar(255)
+  hashedPassword     String  @db.VarChar(255)
+  role               String  @default("student") @db.VarChar(255)
+  firstName          String  @db.VarChar(255)
+  lastName           String  @db.VarChar(255)
+  meetUrl            String? @db.VarChar(255)
+  discordId          String? @db.VarChar(255)
+  avatarUrl          String? @db.VarChar(255)
+  resetPasswordToken String? @db.VarChar(255)
+  notes              note[]
 }
 
 model note {

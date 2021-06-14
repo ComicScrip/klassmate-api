@@ -32,6 +32,14 @@ const SESSION_COOKIE_SECRET = getEnv(`SESSION_COOKIE_SECRET`);
 
 const API_BASE_URL = getEnv(`API_BASE_URL`);
 
+const SMTP_HOST = getEnv(`SMTP_HOST`);
+const SMTP_PORT = getEnv(`SMTP_PORT`);
+const SMTP_USER = getEnv(`SMTP_USER`);
+const SMTP_PASSWORD = getEnv(`SMTP_PASSWORD`);
+
+const EMAIL_SENDER = getEnv(`EMAIL_SENDER`);
+const RESET_PASSWROD_FRONT_URL = getEnv(`RESET_PASSWROD_FRONT_URL`);
+
 module.exports = {
   getEnv,
   inTestEnv,
@@ -49,4 +57,10 @@ module.exports = {
   DB_NAME,
   DB_PORT,
   API_BASE_URL,
+  EMAIL_SENDER,
+  RESET_PASSWROD_FRONT_URL,
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_USER,
+  SMTP_PASSWORD,
 };
