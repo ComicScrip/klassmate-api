@@ -7,8 +7,7 @@ const handleImageUpload = require('../middlewares/handleImageUpload');
 const User = require('../models/user');
 const { ValidationError, RecordNotFoundError } = require('../error-types');
 const tryDeleteFile = require('../helpers/tryDeleteFile');
-const emailer = require('../mailer');
-const { RESET_PASSWROD_FRONT_URL, EMAIL_SENDER } = require('../env');
+const { sendResetPasswordEmail } = require('../emailer');
 
 usersRouter.post(
   '/',
@@ -33,30 +32,19 @@ usersRouter.post(
 usersRouter.post(
   '/reset-password-email',
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findByEmail(req.body.email);
-
-    if (user) {
-      const token = uniqid();
-      const hashedToken = await User.hashPassword(token);
-      await User.update(user.id, { resetPasswordToken: hashedToken });
-
-      const mailContent = `${RESET_PASSWROD_FRONT_URL}?userId=${user.id}&token=${token}`;
-      await emailer.sendMail(
-        {
-          from: EMAIL_SENDER,
-          to: user.email,
-          subject: 'Reset your password',
-          text: mailContent,
-          html: mailContent,
-        },
-        (err, info) => {
-          if (err) console.error(err);
-          else console.log(info);
-        }
-      );
-    }
-
+    // for security reasons, this route will always indicate success
     res.sendStatus(200);
+    try {
+      const user = await User.findByEmail(req.body.email);
+      if (user) {
+        const token = uniqid();
+        await sendResetPasswordEmail(user, token);
+        const hashedToken = await User.hashPassword(token);
+        await User.update(user.id, { resetPasswordToken: hashedToken });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   })
 );
 
