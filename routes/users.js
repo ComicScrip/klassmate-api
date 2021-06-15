@@ -9,6 +9,14 @@ const { ValidationError, RecordNotFoundError } = require('../error-types');
 const tryDeleteFile = require('../helpers/tryDeleteFile');
 const { sendResetPasswordEmail } = require('../emailer');
 
+usersRouter.get(
+  '/',
+  requireCurrentUser,
+  expressAsyncHandler(async (req, res) => {
+    res.send((await User.findMany()).map(User.getSafeAttributes));
+  })
+);
+
 usersRouter.post(
   '/',
   requireCurrentUser,
