@@ -8,7 +8,16 @@ notesRouter.get(
   '/',
   requireCurrentUser,
   asyncHandler(async (req, res) => {
-    res.send(await Note.findMany());
+    const {
+      limit = 10,
+      offset = 0,
+      titleOrContentContains,
+      authorId,
+    } = req.query;
+
+    res.send(
+      await Note.search({ limit, offset, titleOrContentContains, authorId })
+    );
   })
 );
 
@@ -30,7 +39,9 @@ notesRouter.post(
     if (validationErrors) {
       throw new ValidationError(validationErrors.details);
     } else {
-      res.status(201).send(await Note.create(req.body));
+      res
+        .status(201)
+        .send(await Note.create({ ...req.body, authorId: req.currentUser.id }));
     }
   })
 );
