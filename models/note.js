@@ -3,6 +3,47 @@ const db = require('../db');
 
 const findMany = () => db.note.findMany();
 
+const search = async ({ limit, offset, titleOrContentContains, authorId }) => {
+  const take = parseInt(limit, 10);
+  const skip = parseInt(offset, 10);
+  const where = {
+    OR: titleOrContentContains
+      ? [
+          {
+            title: {
+              contains: titleOrContentContains,
+            },
+          },
+          {
+            content: {
+              contains: titleOrContentContains,
+            },
+          },
+        ]
+      : undefined,
+    authorId: authorId ? parseInt(authorId, 10) : undefined,
+  };
+  const [items, totalMatches] = await Promise.all([
+    db.note.findMany({
+      take,
+      skip,
+      where,
+      include: {
+        author: {
+          select: {
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+    }),
+    db.note.count({ where }),
+  ]);
+  return { items, totalMatches };
+};
+
 const findOne = (id) => db.note.findFirst({ where: { id: parseInt(id, 10) } });
 
 const validate = (data, forUpdate = false) =>
@@ -16,11 +57,18 @@ const validate = (data, forUpdate = false) =>
     tags: Joi.array(),
   }).validate(data, { abortEarly: false }).error;
 
-const create = ({ title, content, tags = [] }) =>
+const create = ({ title, content, tags = [], authorId }) =>
   db.note.create({
     data: {
       title,
       content,
+      author: authorId
+        ? {
+            connect: {
+              id: authorId,
+            },
+          }
+        : undefined,
       tags: {
         connectOrCreate: tags.map(({ name }) => ({
           create: { name },
@@ -49,4 +97,5 @@ module.exports = {
   create,
   update,
   destroy,
+  search,
 };

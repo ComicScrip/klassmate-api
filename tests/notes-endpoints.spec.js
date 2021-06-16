@@ -43,12 +43,12 @@ describe(`notes endpoints`, () => {
 
         it('the returned body is an array containing two elements', async () => {
           expect(Array.isArray(res.body));
-          expect(res.body.length).toBe(2);
+          expect(res.body.items.length).toBe(2);
         });
 
         it('the returned elements have expected properties', async () => {
           const expectedProps = ['id', 'title', 'content'];
-          res.body.forEach((element) => {
+          res.body.items.forEach((element) => {
             expectedProps.forEach((prop) => {
               expect(element[prop]).not.toBe(undefined);
             });
