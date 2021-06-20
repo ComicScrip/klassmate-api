@@ -77,6 +77,7 @@ const getSafeAttributes = (user) => {
     ...user,
     avatarUrl,
     hashedPassword: undefined,
+    resetPasswordToken: undefined,
   };
 };
 

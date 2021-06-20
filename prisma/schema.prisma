@@ -54,16 +54,17 @@ model sessions {
 }
 
 model activity {
-  id                      Int                     @id @default(autoincrement())
-  name                    String                  @db.VarChar(255)
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @default(now())
-  activityPartiticpations activityParticipation[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @db.VarChar(255)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now())
+  activityParticipations activityParticipation[]
+  nextGroupMeetingTime   DateTime?
 }
 
 enum ActivityCompletionStatus {
   done
-  stucked
+  stuck
   inProgress
   helping
 }

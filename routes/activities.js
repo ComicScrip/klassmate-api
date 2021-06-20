@@ -8,16 +8,9 @@ activitiesRouter.get(
   '/',
   requireCurrentUser,
   asyncHandler(async (req, res) => {
-    const {
-      limit = 10,
-      offset = 0,
-      titleOrContentContains,
-      authorId,
-    } = req.query;
+    const { limit = 10, offset = 0, nameContains } = req.query;
 
-    res.send(
-      await Activity.search({ limit, offset, titleOrContentContains, authorId })
-    );
+    res.send(await Activity.search({ limit, offset, nameContains }));
   })
 );
 

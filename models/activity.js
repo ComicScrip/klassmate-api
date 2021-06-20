@@ -1,5 +1,8 @@
+const EventEmitter = require('events');
 const Joi = require('joi');
 const db = require('../db');
+
+const activityEventEmitter = new EventEmitter();
 
 const findMany = () => db.activity.findMany();
 
@@ -28,19 +31,22 @@ const findOne = (id) =>
 
 const validate = (data, forUpdate = false) =>
   Joi.object({
-    title: Joi.string()
+    name: Joi.string()
       .max(255)
       .presence(forUpdate ? 'optional' : 'required'),
-    content: Joi.string()
-      .max(65535)
-      .presence(forUpdate ? 'optional' : 'required'),
-    tags: Joi.array(),
+    nextGroupMeetingTime: Joi.date(),
   }).validate(data, { abortEarly: false }).error;
 
 const create = ({ name }) => db.activity.create({ data: { name } });
 
-const update = (id, data) =>
-  db.activity.update({ data, where: { id: parseInt(id, 10) } });
+const update = async (id, data) => {
+  const updated = await db.activity.update({
+    data,
+    where: { id: parseInt(id, 10) },
+  });
+  activityEventEmitter.emit('activityUpdated', updated);
+  return updated;
+};
 
 const destroy = (id) =>
   db.activity
@@ -56,4 +62,5 @@ module.exports = {
   update,
   destroy,
   search,
+  activityEventEmitter,
 };

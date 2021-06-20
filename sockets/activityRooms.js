@@ -1,5 +1,6 @@
 const ActivityParticipation = require('../models/activityParticipation');
 const User = require('../models/user');
+const { activityEventEmitter } = require('../models/activity');
 
 const manageActivityRooms = (socket) => {
   const {
@@ -25,6 +26,11 @@ const manageActivityRooms = (socket) => {
     ).map(User.getSafeAttributes);
     socket.emit('activityAttendees', participants);
 
+    const handleUpdate = (updated) => {
+      socket.emit('activityUpdated', updated);
+    };
+    activityEventEmitter.on('activityUpdated', handleUpdate);
+
     socket.to(room).emit(
       'userJoined',
       User.getSafeAttributes({
@@ -35,6 +41,7 @@ const manageActivityRooms = (socket) => {
         meetUrl,
         discordId,
         completionStatus: activityParticipation.completionStatus,
+        energyLevel: activityParticipation.energyLevel,
       })
     );
 
@@ -57,6 +64,7 @@ const manageActivityRooms = (socket) => {
     );
 
     socket.on('disconnect', async () => {
+      activityEventEmitter.off('activityUpdated', handleUpdate);
       await ActivityParticipation.leaveActivity(userId, activityId);
       socket.to(room).emit('userLeft', userId);
     });
