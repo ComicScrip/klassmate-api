@@ -1,20 +1,14 @@
 const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const {
-  PORT,
-  CORS_ALLOWED_ORIGINS,
-  inTestEnv,
-  inProdEnv,
-  SESSION_COOKIE_SECRET,
-  SESSION_COOKIE_NAME,
-  SESSION_COOKIE_DOMAIN,
-} = require('./env');
+const socketIO = require('socket.io');
+const { PORT, inTestEnv } = require('./env');
 const initRoutes = require('./routes');
 const handleRecordNotFoundError = require('./middlewares/handleRecordNotFoundError');
 const handleValidationError = require('./middlewares/handleValidationError');
 const handleServerInternalError = require('./middlewares/handleServerInternalError');
-const sessionStore = require('./sessionStore');
+const sessions = require('./middlewares/sessions');
+const cors = require('./middlewares/cors');
+const ActivityParticipation = require('./models/activityParticipation');
+const User = require('./models/user');
 
 const app = express();
 
@@ -23,33 +17,8 @@ app.set('trust proxy', 1);
 
 app.use(express.json());
 
-const allowedOrigins = CORS_ALLOWED_ORIGINS.split(',');
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (origin === undefined || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.use(
-  session({
-    key: SESSION_COOKIE_NAME,
-    secret: SESSION_COOKIE_SECRET,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: inProdEnv,
-      domain: SESSION_COOKIE_DOMAIN,
-      sameSite: true,
-    },
-  })
-);
+app.use(cors);
+app.use(sessions);
 
 app.use('/file-storage', express.static('file-storage'));
 
@@ -74,6 +43,93 @@ process.on('unhandledRejection', (error) => {
 process.on('uncaughtException', (error) => {
   console.error('uncaughtException', JSON.stringify(error), error.stack);
   process.exit(1);
+});
+
+const io = socketIO(server, {
+  cors: {
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  },
+});
+
+const wrap = (middleware) => (socket, next) =>
+  middleware(socket.request, socket, next);
+
+io.use(wrap(sessions));
+io.use(async (socket, next) => {
+  try {
+    // eslint-disable-next-line
+    socket.request.currentUser = await User.findOne(
+      socket.request.session.userId
+    );
+  } catch (err) {
+    console.error(err);
+    return socket.disconnect();
+  }
+  return next();
+});
+
+io.on('connect', async (socket) => {
+  const {
+    currentUser: {
+      id: userId,
+      firstName,
+      lastName,
+      avatarUrl,
+      meetUrl,
+      discordId,
+    },
+  } = socket.request;
+
+  socket.on('joinActivity', async (activityId) => {
+    const room = `activity-${activityId}`;
+    const activityParticipation = await ActivityParticipation.joinActivity(
+      userId,
+      activityId
+    );
+    socket.join(room);
+    const participants = (
+      await ActivityParticipation.getConnectedUsers(activityId)
+    ).map(User.getSafeAttributes);
+    socket.emit('activityAttendees', participants);
+
+    socket.to(room).emit(
+      'userJoined',
+      User.getSafeAttributes({
+        id: userId,
+        firstName,
+        lastName,
+        avatarUrl,
+        meetUrl,
+        discordId,
+        completionStatus: activityParticipation.completionStatus,
+      })
+    );
+
+    socket.on(
+      'activityParticipationUpdatedFromClient',
+      async ({ completionStatus, energyLevel }) => {
+        const updated = User.getSafeAttributes(
+          await ActivityParticipation.update({
+            userId,
+            activityId,
+            energyLevel,
+            completionStatus,
+          })
+        );
+        socket.to(room).emit('activityParticipationUpdatedFromServer', {
+          userId,
+          ...updated,
+        });
+      }
+    );
+
+    socket.on('disconnect', async () => {
+      console.log('disconnect');
+      await ActivityParticipation.leaveActivity(userId, activityId);
+      socket.to(room).emit('userLeft', userId);
+    });
+  });
 });
 
 module.exports = server;

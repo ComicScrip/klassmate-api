@@ -59,6 +59,8 @@ module.exports = async function seed() {
         authorId: students[Math.floor(Math.random() * students.length)].id,
       })),
   });
+
+  await db.activity.create({ data: { name: 'testactivity' } });
 };
 
 module
