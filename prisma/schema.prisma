@@ -8,19 +8,20 @@ datasource db {
 }
 
 model user {
-  id                 Int      @id @default(autoincrement())
-  email              String   @unique @db.VarChar(255)
-  hashedPassword     String   @db.VarChar(255)
-  role               String   @default("student") @db.VarChar(255)
-  firstName          String   @db.VarChar(255)
-  lastName           String   @db.VarChar(255)
-  meetUrl            String?  @db.VarChar(255)
-  discordId          String?  @db.VarChar(255)
-  avatarUrl          String?  @db.VarChar(255)
-  resetPasswordToken String?  @db.VarChar(255)
-  notes              note[]
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @default(now())
+  id                     Int                     @id @default(autoincrement())
+  email                  String                  @unique @db.VarChar(255)
+  hashedPassword         String                  @db.VarChar(255)
+  role                   String                  @default("student") @db.VarChar(255)
+  firstName              String                  @db.VarChar(255)
+  lastName               String                  @db.VarChar(255)
+  meetUrl                String?                 @db.VarChar(255)
+  discordId              String?                 @db.VarChar(255)
+  avatarUrl              String?                 @db.VarChar(255)
+  resetPasswordToken     String?                 @db.VarChar(255)
+  notes                  note[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now())
+  activityParticipations activityParticipation[]
 }
 
 model note {
@@ -50,4 +51,32 @@ model sessions {
   data       String?  @db.MediumText
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
+}
+
+model activity {
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @db.VarChar(255)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now())
+  activityParticipations activityParticipation[]
+  nextGroupMeetingTime   DateTime?
+}
+
+enum ActivityCompletionStatus {
+  done
+  stuck
+  inProgress
+  helping
+}
+
+model activityParticipation {
+  user             user                     @relation(fields: [userId], references: [id])
+  userId           Int
+  activity         activity                 @relation(fields: [activityId], references: [id])
+  activityId       Int
+  completionStatus ActivityCompletionStatus @default(inProgress)
+  energyLevel      Int?
+  connected        Boolean                  @default(true)
+
+  @@id([userId, activityId])
 }
