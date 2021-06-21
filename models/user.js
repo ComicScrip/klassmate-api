@@ -91,4 +91,5 @@ module.exports = {
   findMany,
   update,
   getSafeAttributes,
+  upsert: db.user.upsert,
 };

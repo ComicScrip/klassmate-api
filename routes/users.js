@@ -38,6 +38,42 @@ usersRouter.post(
 );
 
 usersRouter.post(
+  '/invites',
+  requireCurrentUser,
+  expressAsyncHandler(async (req, res, next) => {
+    if (req.currentUser.role === 'admin') next();
+    else res.sendStatus(403);
+  }),
+  expressAsyncHandler(async (req, res) => {
+    const emails = req.body.emails || req.query.emails;
+    const invitePromises = emails.map(async (email) => {
+      try {
+        const token = uniqid();
+        const hashedToken = await User.hashPassword(token);
+
+        const user = await User.upsert({
+          where: { email },
+          create: {
+            email,
+            resetPasswordToken: hashedToken,
+            firstName: 'Guest',
+            lastName: 'Guest',
+            hashedPassword: hashedToken,
+          },
+          update: { resetPasswordToken: hashedToken },
+        });
+        await sendResetPasswordEmail({ id: user.id, email: user.email }, token);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    await Promise.all(invitePromises);
+    res.sendStatus(200);
+  })
+);
+
+usersRouter.post(
   '/reset-password-email',
   expressAsyncHandler(async (req, res) => {
     // for security reasons, this route will always indicate success
