@@ -48,11 +48,15 @@ const update = async (id, data) => {
   return updated;
 };
 
-const destroy = (id) =>
-  db.activity
+const destroy = async (id) => {
+  await db.activityParticipation.deleteMany({
+    where: { activityId: parseInt(id, 10) },
+  });
+  return db.activity
     .delete({ where: { id: parseInt(id, 10) } })
     .then(() => true)
     .catch(() => false);
+};
 
 module.exports = {
   findMany,
