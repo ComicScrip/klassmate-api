@@ -1,3 +1,5 @@
+const sharp = require('sharp');
+const path = require('path');
 const _ = require('lodash');
 const usersRouter = require('express').Router();
 const expressAsyncHandler = require('express-async-handler');
@@ -130,10 +132,21 @@ usersRouter.patch(
     const data = _.omit(req.body, 'avatar');
 
     if (req.file && req.file.path) {
+      const ext = path.extname(req.file.path);
+      const outputFilePath = `${req.file.path.replace(ext, '')}_thumb.webp`;
+
+      await sharp(req.file.path)
+        .resize(250, 250, 'contain')
+        .webp({ quality: 85 })
+        .toFile(outputFilePath);
+
+      await tryDeleteFile(req.file.path);
+
       if (req.body.avatarUrl === '') {
-        await tryDeleteFile(req.file.path);
+        await tryDeleteFile(outputFilePath);
       } else {
-        data.avatarUrl = req.file.path;
+        console.log(outputFilePath);
+        data.avatarUrl = outputFilePath;
       }
     }
 
