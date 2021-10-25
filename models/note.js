@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const db = require('../db');
+const { getSafeAttributes } = require('./user');
 
 const findMany = () => db.note.findMany();
 
@@ -44,7 +45,17 @@ const search = async ({ limit, offset, titleOrContentContains, authorId }) => {
   return { items, totalMatches };
 };
 
-const findOne = (id) => db.note.findFirst({ where: { id: parseInt(id, 10) } });
+const findOne = (id) =>
+  db.note
+    .findFirst({
+      where: { id: parseInt(id, 10) },
+      include: {
+        author: {
+          select: { firstName: true, avatarUrl: true, lastName: true },
+        },
+      },
+    })
+    .then((note) => ({ ...note, author: getSafeAttributes(note.author) }));
 
 const validate = (data, forUpdate = false) =>
   Joi.object({
@@ -82,7 +93,10 @@ const create = ({ title, content, tags = [], authorId }) =>
   });
 
 const update = (id, data) =>
-  db.note.update({ data, where: { id: parseInt(id, 10) } });
+  db.note.update({
+    data: { ...data, updatedAt: new Date() },
+    where: { id: parseInt(id, 10) },
+  });
 
 const destroy = (id) =>
   db.note
