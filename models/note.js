@@ -82,7 +82,10 @@ const create = ({ title, content, tags = [], authorId }) =>
   });
 
 const update = (id, data) =>
-  db.note.update({ data, where: { id: parseInt(id, 10) } });
+  db.note.update({
+    data: { ...data, updatedAt: new Date() },
+    where: { id: parseInt(id, 10) },
+  });
 
 const destroy = (id) =>
   db.note
