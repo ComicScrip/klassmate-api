@@ -1,7 +1,11 @@
 const notesRouter = require('express').Router();
 const asyncHandler = require('express-async-handler');
 const Note = require('../models/note');
-const { RecordNotFoundError, ValidationError } = require('../error-types');
+const {
+  RecordNotFoundError,
+  ValidationError,
+  ForbiddenActionError,
+} = require('../error-types');
 const requireCurrentUser = require('../middlewares/requireCurrentUser');
 
 notesRouter.get(
@@ -53,6 +57,12 @@ notesRouter.patch(
     const existingNote = await Note.findOne(req.params.id);
     if (!existingNote) throw new RecordNotFoundError();
     const validationErrors = Note.validate(req.body, true);
+    console.log({ lol: req.currentUser.id, lel: existingNote.authorId });
+    if (
+      req.currentUser.role !== 'admin' &&
+      existingNote.authorId !== req.currentUser.id
+    )
+      throw new ForbiddenActionError();
     if (validationErrors) throw new ValidationError(validationErrors.details);
     await Note.update(req.params.id, req.body);
     return res.json({ ...existingNote, ...req.body });
@@ -63,6 +73,12 @@ notesRouter.delete(
   '/:id',
   requireCurrentUser,
   asyncHandler(async (req, res) => {
+    const existingNote = await Note.findOne(req.params.id);
+    if (
+      req.currentUser.role !== 'admin' &&
+      existingNote.authorId !== req.currentUser.id
+    )
+      throw new ForbiddenActionError();
     if (await Note.destroy(req.params.id)) res.sendStatus(204);
     else throw new RecordNotFoundError();
   })
