@@ -7,6 +7,7 @@ const handleServerInternalError = require('./middlewares/handleServerInternalErr
 const sessions = require('./middlewares/sessions');
 const cors = require('./middlewares/cors');
 const { initSockets } = require('./sockets');
+const handleForbiddenActionError = require('./middlewares/handleForbiddenActionError');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/file-storage', express.static('file-storage'));
 
 initRoutes(app);
 
+app.use(handleForbiddenActionError);
 app.use(handleRecordNotFoundError);
 app.use(handleValidationError);
 app.use(handleServerInternalError);

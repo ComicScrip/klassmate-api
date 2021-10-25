@@ -6,6 +6,13 @@ class RecordNotFoundError extends Error {
     this.id = id;
   }
 }
+
+class ForbiddenActionError extends Error {
+  constructor(collection, id) {
+    super("You dont't have the right priviledges to perform this action");
+  }
+}
+
 class ValidationError extends Error {
   constructor(errorsByField) {
     super('Invalid data was provided');
@@ -16,4 +23,5 @@ class ValidationError extends Error {
 module.exports = {
   RecordNotFoundError,
   ValidationError,
+  ForbiddenActionError,
 };
