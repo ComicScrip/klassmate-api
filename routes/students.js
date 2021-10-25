@@ -7,7 +7,11 @@ studentsRouter.get(
   '/',
   requireCurrentUser,
   expressAsyncHandler(async (req, res) => {
-    res.send(await User.findMany({ where: { role: 'student' } }));
+    res.send(
+      (await User.findMany({ where: { role: 'student' } })).map(
+        User.getSafeAttributes
+      )
+    );
   })
 );
 
