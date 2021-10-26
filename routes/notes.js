@@ -57,7 +57,6 @@ notesRouter.patch(
     const existingNote = await Note.findOne(req.params.id);
     if (!existingNote) throw new RecordNotFoundError();
     const validationErrors = Note.validate(req.body, true);
-    console.log({ lol: req.currentUser.id, lel: existingNote.authorId });
     if (
       req.currentUser.role !== 'admin' &&
       existingNote.authorId !== req.currentUser.id
